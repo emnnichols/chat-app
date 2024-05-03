@@ -53,7 +53,7 @@ const Chat = ({ route, navigation }) => {
 
   // Customize Send button
   const renderSend = (props) => {
-    return <Send {...props} textStyle={styles.sendButton} />
+    return <Send {...props} textStyle={[styles.sendButton, Platform.OS === 'android' ? { paddingBottom: 0 } : null]} />
   }
 
   useEffect(() => {
@@ -118,10 +118,8 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     paddingHorizontal: 15,
-    paddingTop: 8,
     paddingBottom: 27,
-    backgroundColor: '#000',
-    color: '#fff',
+    color: '#000',
     marginBottom: 0,
     marginRight: -10
   }
