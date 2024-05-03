@@ -1,4 +1,14 @@
-import { ImageBackground, Image, StyleSheet, View, Text, TextInput, TouchableOpacity } from "react-native";
+import {
+  ImageBackground,
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Platform,
+  KeyboardAvoidingView,
+  Keyboard
+} from "react-native";
 import { useState } from 'react';
 
 const Start = ({ navigation }) => {
@@ -17,16 +27,23 @@ const Start = ({ navigation }) => {
       resizeMode="cover"
       style={styles.image}
     >
-      <Text style={{ color: '#fff' }}>
-        WELCOME TO
-      </Text>
-      <Text style={styles.appName}>
-        CHAT
-      </Text>
+      {/* View that has the app name / title */}
+      <View style={styles.appNameView}>
+        <Text style={{ color: '#fff' }}>
+          WELCOME TO
+        </Text>
+        <Text style={styles.appName}>
+          CHAT
+        </Text>
+      </View>
 
+      {/* View that has the TextInput and Background Color choices */}
       <View style={styles.startOptions}>
         <TextInput
-          style={[styles.textInput, { opacity: 50, marginBottom: 40 }]}
+          accessibilityLabel="Username Field"
+          accessibilityHint="Enter your username here"
+          accessibilityRole="text"
+          style={[styles.textInput, { opacity: 50 }]}
           value={name}
           onChangeText={setName}
           placeholder="Your Name"
@@ -39,6 +56,9 @@ const Start = ({ navigation }) => {
         <View style={styles.colorOptions}>
           {colors.map((color, index) => (
             <TouchableOpacity
+              accessibilityLabel="Color buttons"
+              accessibilityHint="Choose what color you want as your chat background"
+              accessibilityRole="button"
               key={index}
               style={[styles.chooseColor, { backgroundColor: color }, selected(color)]}
               onPress={() => { setBackground(color) }}
@@ -46,39 +66,50 @@ const Start = ({ navigation }) => {
           ))}
         </View>
 
+        {/* Navigates to the Chat screen and passes the name and background color */}
         <TouchableOpacity
+          accessibilityLabel="Go to chat"
+          accessibilityRole="button"
           style={styles.button}
-          // Navigates to the Chat screen and passes the name and background color
           onPress={() => navigation.navigate('Chat', { name: name, background: background })}>
           <Text style={styles.buttonText}>Start Chatting</Text>
         </TouchableOpacity>
       </View>
-    </ImageBackground>
+      {Platform.OS === "ios" ? <KeyboardAvoidingView behavior="padding" style={{ marginBottom: 120 }} /> : null}
+    </ImageBackground >
   )
 }
 
 const styles = StyleSheet.create({
   image: {
     flex: 1,
-    justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  appNameView: {
+    flex: 1,
+    marginBottom: 30,
+    marginTop: 110,
+    paddingTop: '25%',
+    minHeight: 150,
     alignItems: 'center',
   },
   appName: {
     fontSize: 45,
     fontWeight: '600',
     color: "#ffffff",
-    letterSpacing: 10,
-    marginBottom: '40%'
+    letterSpacing: 10
   },
   startOptions: {
     width: '88%',
-    maxHeight: '44%',
+    minHeight: '35%',
+    maxHeight: '40%',
+    marginBottom: 10,
+    paddingVertical: 20,
     backgroundColor: '#fff',
-    justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 7,
-    paddingTop: '5%',
-    paddingBottom: '5%',
+    borderRadius: 13,
+    justifyContent: "space-evenly",
   },
   textInput: {
     width: "88%",
@@ -87,13 +118,13 @@ const styles = StyleSheet.create({
     color: "#757083",
     padding: 15,
     borderWidth: 1,
-    marginBottom: '5%'
+    marginBottom: '4%',
   },
   colorOptions: {
     flexDirection: 'row',
     width: "88%",
-    height: '20%',
-    marginBottom: '5%'
+    height: '10%',
+    marginBottom: 40
   },
   chooseColorText: {
     borderWidth: 0,
