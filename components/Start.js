@@ -7,11 +7,26 @@ import {
   TouchableOpacity,
   Platform,
   KeyboardAvoidingView,
-  Keyboard
+  Keyboard,
+  Alert
 } from "react-native";
 import { useState } from 'react';
 
+import { auth } from '../firebase';
+import { signInAnonymously } from "firebase/auth";
+
 const Start = ({ navigation }) => {
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then(result => {
+        navigation.navigate('Chat', { userID: result.user.uid, name: name, background: background });
+        Alert.alert("Signed in successfully!");
+      })
+      .catch((error) => {
+        Alert.alert("Unable to sign in, try again.");
+      })
+  };
+
   // State that holds the TextInput value
   const [name, setName] = useState('');
   // State that holds the background color chosen by user
@@ -71,7 +86,7 @@ const Start = ({ navigation }) => {
           accessibilityLabel="Go to chat"
           accessibilityRole="button"
           style={styles.button}
-          onPress={() => navigation.navigate('Chat', { name: name, background: background })}>
+          onPress={signInUser}>
           <Text style={styles.buttonText}>Start Chatting</Text>
         </TouchableOpacity>
       </View>
