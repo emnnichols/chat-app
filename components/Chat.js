@@ -1,13 +1,15 @@
 import { Bubble, GiftedChat, InputToolbar, Message, MessageText, Send } from "react-native-gifted-chat";
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, View, Text, KeyboardAvoidingView, Platform, Alert } from "react-native";
 
-const Chat = ({ route, navigation }) => {
-  const { name, background } = route.params;
+import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+
+const Chat = ({ route, navigation, db }) => {
+  const { userID, name, background } = route.params;
   const [messages, setMessages] = useState([]);
 
   const onSend = (newMessages) => {
-    setMessages(previousMessages => GiftedChat.append(previousMessages, newMessages))
+    addDoc(collection(db, "messages"), newMessages[0]);
   }
 
   // Customization for message Bubbles
@@ -57,28 +59,23 @@ const Chat = ({ route, navigation }) => {
   }
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: "Hello Developer!",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: require('../assets/icon.png'),
-        },
-      },
-      {
-        _id: 2,
-        text: "This is a system message",
-        createdAt: new Date(),
-        system: true,
-      },
-    ]);
-  }, []);
-
-  useEffect(() => {
     navigation.setOptions({ title: name });
+    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    const unsubMessages = onSnapshot(q, (docs) => {
+      let newMessages = [];
+      docs.forEach(doc => {
+        newMessages.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt.toMillis())
+        })
+      });
+      setMessages(newMessages);
+    })
+
+    return () => {
+      if (unsubMessages) unsubMessages();
+    }
   }, []);
 
   return (
@@ -95,7 +92,8 @@ const Chat = ({ route, navigation }) => {
         renderBubble={renderBubble}
         onSend={messages => onSend(messages)}
         user={{
-          _id: 1,
+          _id: userID,
+          name: name,
           avatar: require('../assets/icon.png')
         }}
       />
