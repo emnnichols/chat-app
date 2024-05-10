@@ -3,14 +3,16 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, KeyboardAvoidingView, Platform, Alert } from "react-native";
 
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Chat = ({ route, navigation, db }) => {
+const Chat = ({ isConnected, route, navigation, db }) => {
   const { userID, name, background } = route.params;
   const [messages, setMessages] = useState([]);
 
+  // Adds new messages to Firebase
   const onSend = (newMessages) => {
     addDoc(collection(db, "messages"), newMessages[0]);
-  }
+  };
 
   // Customization for message Bubbles
   const renderBubble = (props) => {
@@ -31,10 +33,11 @@ const Chat = ({ route, navigation, db }) => {
 
   // Customization for message composer
   const renderInputToolbar = (props) => {
-    return <InputToolbar
+    if (isConnected) return <InputToolbar
       {...props}
       containerStyle={styles.chat}
-    />
+    />;
+    else return null;
   }
 
   // Changes System Message text color
@@ -58,25 +61,50 @@ const Chat = ({ route, navigation, db }) => {
     return <Send {...props} textStyle={[styles.sendButton, Platform.OS === 'android' ? { paddingBottom: 0 } : null]} />
   }
 
+  let unsubMessages;
+
   useEffect(() => {
     navigation.setOptions({ title: name });
-    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-    const unsubMessages = onSnapshot(q, (docs) => {
-      let newMessages = [];
-      docs.forEach(doc => {
-        newMessages.push({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: new Date(doc.data().createdAt.toMillis())
-        })
-      });
-      setMessages(newMessages);
-    })
+
+    if (isConnected === true) {
+      // Unregister current onSnapshot listener
+      if (unsubMessages) unsubMessages();
+      unsubMessages = null;
+
+      const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+      unsubMessages = onSnapshot(q, (docs) => {
+        let newMessages = [];
+        docs.forEach(doc => {
+          newMessages.push({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: new Date(doc.data().createdAt.toMillis())
+          })
+        });
+        cacheMessages(newMessages);
+        setMessages(newMessages);
+      })
+    } else loadCachedMessages();
 
     return () => {
       if (unsubMessages) unsubMessages();
     }
-  }, []);
+  }, [isConnected]);
+
+  // Cache messages to AsyncStoage
+  const cacheMessages = async (messagesToCache) => {
+    try {
+      await AsyncStorage.setItem('messages_list', JSON.stringify(messagesToCache));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  // Load cached messages
+  const loadCachedMessages = async () => {
+    const cachedMessages = await AsyncStorage.getItem('messages_list') || [];
+    setMessages(JSON.parse(cachedMessages));
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
