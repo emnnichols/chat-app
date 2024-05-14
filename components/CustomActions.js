@@ -62,11 +62,10 @@ const CustomActions = ({ onSend, wrapperStyle, iconTextStyle, storage, userID })
     const blob = await response.blob();
     const newUploadRef = ref(storage, uniqueRefString);
     uploadBytes(newUploadRef, blob).then(async (snapshot) => {
-      console.log("File has been uploaded successfully");
       const imageURL = await getDownloadURL(snapshot.ref);
       onSend({ image: imageURL })
     })
-  };
+  }
 
   // Picks image from device library
   const pickImage = async () => {
@@ -74,9 +73,8 @@ const CustomActions = ({ onSend, wrapperStyle, iconTextStyle, storage, userID })
     if (permissions?.granted) {
       let result = await ImagePicker.launchImageLibraryAsync();
       if (!result.canceled) await uploadAndSendImage(result.assets[0].uri);
-      else Alert.alert("Permissions haven't been granted")
-    }
-  };
+    } else Alert.alert("Permissions haven't been granted")
+  }
 
   // Takes photo with device camera
   const takePhoto = async () => {
@@ -84,9 +82,8 @@ const CustomActions = ({ onSend, wrapperStyle, iconTextStyle, storage, userID })
     if (permissions?.granted) {
       let result = await ImagePicker.launchCameraAsync();
       if (!result.canceled) await uploadAndSendImage(result.assets[0].uri);
-      else Alert.alert("Permissions haven't been granted")
-    }
-  };
+    } else Alert.alert("Permissions haven't been granted")
+  }
 
   return (
     <TouchableOpacity

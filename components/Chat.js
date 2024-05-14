@@ -146,6 +146,7 @@ const Chat = ({ isConnected, route, navigation, db, storage }) => {
         renderMessage={renderMessage}
         renderMessageText={renderMessageText}
         renderSend={renderSend}
+        showUserAvatar={true}
         renderAvatarOnTop={true}
         messages={messages}
         renderBubble={renderBubble}
