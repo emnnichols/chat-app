@@ -8,6 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNetInfo } from '@react-native-community/netinfo';
 
 import { getFirestore, disableNetwork, enableNetwork } from 'firebase/firestore';
+import { getStorage } from "firebase/storage";
 import { app } from './firebase';
 
 import Start from './components/Start';
@@ -19,6 +20,7 @@ const App = () => {
   const connectionStatus = useNetInfo();
 
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   useEffect(() => {
     if (connectionStatus.isConnected === false) {
@@ -47,6 +49,7 @@ const App = () => {
             <Chat
               isConnected={connectionStatus.isConnected}
               db={db}
+              storage={storage}
               {...props} />}
         </Stack.Screen>
       </Stack.Navigator>
