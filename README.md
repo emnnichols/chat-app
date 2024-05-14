@@ -15,9 +15,13 @@ The Chat app provides users with a chat interface and the option to share images
 * **AsyncStorage** --- Persistent, key-value storage system; used instead of LocalStorage
 
 # To Use
-* Download ZIP file and extract the project
+* Download ZIP file and extract the project, or clone the repo 
 * Using a CLI (e.g. Terminal or Powershell), navigate to the project root folder
+* Install Node.js, npm, and expo if you do not already have them, the versions used for this project were:
+  * 18.20.2 (node)
+  * 10.7.0 (npm)
+  * 0.18.10 (expo, installed via `npm install -g expo-cli`)
 * Run `npm install` to install the dependencies
 * Run `npx expo start` to start the app
-  * Run on either an emulator or simulator
-  * Or install Expo Go app on your own device and scan the QR code provided by `expo start`
+  * Run on either an emulator or simulator (e.g. Android Studio or xCode)
+  * Or install Expo Go app on your own device and scan the QR code provided by Metro Bundler
