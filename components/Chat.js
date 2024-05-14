@@ -1,11 +1,14 @@
-import { Bubble, GiftedChat, InputToolbar, Message, MessageText, Send } from "react-native-gifted-chat";
+import MapView from 'react-native-maps';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { StyleSheet, View, KeyboardAvoidingView, Platform } from "react-native";
+import { Bubble, GiftedChat, InputToolbar, Message, MessageText, Send } from "react-native-gifted-chat";
 
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Chat = ({ isConnected, route, navigation, db }) => {
+import CustomActions from "./CustomActions";
+
+const Chat = ({ isConnected, route, navigation, db, storage }) => {
   const { userID, name, background } = route.params;
   const [messages, setMessages] = useState([]);
 
@@ -106,10 +109,39 @@ const Chat = ({ isConnected, route, navigation, db }) => {
     setMessages(JSON.parse(cachedMessages));
   };
 
+  const renderCustomActions = (props) => {
+    return <CustomActions storage={storage} userID={userID} {...props} />;
+  };
+
+  const renderCustomView = (props) => {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{
+            width: 150,
+            height: 100,
+            borderRadius: 13,
+            margin: 3
+          }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      )
+    }
+    return null;
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
       <GiftedChat
         textStyle={{ color: '#fff' }}
+        renderCustomView={renderCustomView}
+        renderActions={renderCustomActions}
         renderInputToolbar={renderInputToolbar}
         renderMessage={renderMessage}
         renderMessageText={renderMessageText}
