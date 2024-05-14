@@ -147,14 +147,13 @@ const Chat = ({ isConnected, route, navigation, db, storage }) => {
         renderMessageText={renderMessageText}
         renderSend={renderSend}
         renderAvatarOnTop={true}
-        showUserAvatar={true}
         messages={messages}
         renderBubble={renderBubble}
         onSend={messages => onSend(messages)}
         user={{
           _id: userID,
           name: name,
-          avatar: require('../assets/icon.png')
+          avatar: require('../assets/defaultAvatar.png')
         }}
       />
       {Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null}
